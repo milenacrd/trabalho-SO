@@ -1,5 +1,3 @@
-// Aviso: parte do código foi gerada com suporte de IA para ajudar no desenvolvimento.
-// Implementação inicial do Algoritmo do Banqueiro em Java.
 
 import java.util.Arrays;
 import java.util.Random;
@@ -73,14 +71,17 @@ public class BankersAlgorithm {
     static boolean isSafe() {
         int[] work = Arrays.copyOf(available, available.length);
         boolean[] finish = new boolean[NUMBER_OF_CUSTOMERS];
+        int[] safeSequence = new int[NUMBER_OF_CUSTOMERS];
+        int count = 0;
 
-        while (true) {
+        while (count < NUMBER_OF_CUSTOMERS) {
             boolean found = false;
             for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
                 if (!finish[i] && canSatisfy(need[i], work)) {
                     for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
                         work[j] += allocation[i][j];
                     }
+                    safeSequence[count++] = i;
                     finish[i] = true;
                     found = true;
                 }
@@ -91,12 +92,18 @@ public class BankersAlgorithm {
             }
         }
 
-        for (boolean done : finish) {
-            if (!done) {
-                return false;
+        boolean safe = count == NUMBER_OF_CUSTOMERS;
+        if (safe) {
+            System.out.print("Sequência segura: ");
+            for (int i = 0; i < count; i++) {
+                System.out.print(safeSequence[i]);
+                if (i < count - 1) {
+                    System.out.print(" -> ");
+                }
             }
+            System.out.println();
         }
-        return true;
+        return safe;
     }
 
     static boolean canSatisfy(int[] request, int[] available) {
