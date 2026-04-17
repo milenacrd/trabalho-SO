@@ -12,16 +12,53 @@ public class BankersAlgorithm {
     static int[][] need = new int[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES];
 
     public static void main(String[] args) {
-        initData(args);
-        printInitialState();
+        if (args.length == 0) {
+            printUsage();
+            return;
+        }
 
-        boolean safe = isSafe();
-        System.out.println("Estado seguro? " + safe);
+        if (args.length == NUMBER_OF_RESOURCES) {
+            initData(Arrays.copyOf(args, NUMBER_OF_RESOURCES));
+            printInitialState();
+
+            boolean safe = isSafe();
+            System.out.println("Estado seguro? " + safe);
+            return;
+        }
+
+        if (args.length == NUMBER_OF_RESOURCES + 2 + NUMBER_OF_RESOURCES
+                && args[NUMBER_OF_RESOURCES].equalsIgnoreCase("request")) {
+            String[] availableArgs = Arrays.copyOf(args, NUMBER_OF_RESOURCES);
+            initData(availableArgs);
+            printInitialState();
+
+            int customerNum = Integer.parseInt(args[NUMBER_OF_RESOURCES + 1]);
+            int[] request = new int[NUMBER_OF_RESOURCES];
+            for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+                request[i] = Integer.parseInt(args[NUMBER_OF_RESOURCES + 2 + i]);
+            }
+
+            System.out.println("\nTeste de requestResources para cliente " + customerNum + ", pedido " + Arrays.toString(request));
+            int result = requestResources(customerNum, request);
+            System.out.println("Resultado: " + (result == 0 ? "Aprovado" : "Negado"));
+            printInitialState();
+            boolean safe = isSafe();
+            System.out.println("Estado seguro após request? " + safe);
+            return;
+        }
+
+        printUsage();
+    }
+
+    static void printUsage() {
+        System.out.println("Uso:");
+        System.out.println("  java -cp src BankersAlgorithm <r1> <r2> <r3>");
+        System.out.println("  java -cp src BankersAlgorithm <r1> <r2> <r3> request <customer> <q1> <q2> <q3>");
     }
 
     static void initData(String[] args) {
         if (args.length != NUMBER_OF_RESOURCES) {
-            System.out.println("Uso: java BankersAlgorithm <rec1> <rec2> <rec3>");
+            printUsage();
             System.exit(1);
         }
 
@@ -104,6 +141,38 @@ public class BankersAlgorithm {
             System.out.println();
         }
         return safe;
+    }
+
+    static int requestResources(int customerNum, int[] request) {
+        if (customerNum < 0 || customerNum >= NUMBER_OF_CUSTOMERS) {
+            return -1;
+        }
+
+        if (!canSatisfy(request, need[customerNum])) {
+            return -1;
+        }
+
+        if (!canSatisfy(request, available)) {
+            return -1;
+        }
+
+        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+            available[j] -= request[j];
+            allocation[customerNum][j] += request[j];
+            need[customerNum][j] -= request[j];
+        }
+
+        if (isSafe()) {
+            return 0;
+        }
+
+        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+            available[j] += request[j];
+            allocation[customerNum][j] -= request[j];
+            need[customerNum][j] += request[j];
+        }
+
+        return -1;
     }
 
     static boolean canSatisfy(int[] request, int[] available) {
