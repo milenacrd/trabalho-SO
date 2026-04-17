@@ -1,0 +1,109 @@
+### Plano de Tarefas Detalhado para Executar o Trabalho Prático 1: Algoritmo do Banqueiro
+
+Com base no conteúdo fornecido do PDF, o trabalho envolve implementar o Algoritmo do Banqueiro em um programa multithreaded para prevenir deadlocks, com foco em threads, prevenção de condições de corrida e controle de recursos. O plano é dividido em fases principais, com subtarefas detalhadas, prazos estimados e recursos. Usei uma abordagem incremental, priorizando a correção do algoritmo e o uso de mutex. Linguagem recomendada: C (para compatibilidade com Pthreads) ou Java/Python (se preferir simplicidade). Tempo total estimado: 7-10 dias.
+
+#### Fase 1: Preparação e Planejamento (1-2 dias)
+   - Objetivo: Entender o algoritmo, configurar o ambiente e planejar a implementação.
+   - Tarefas Detalhadas:
+     1. Revisar conceitos teóricos do Algoritmo do Banqueiro:
+        - Ler Seção 7.5.3 do livro (Silberschatz et al.): Entender estado seguro/inseguro, vetores available, maximum, allocation, need.
+        - Estudar o algoritmo de segurança: Simular alocação para verificar se todos os clientes podem terminar sem deadlock.
+        - Revisar deadlocks, condições de corrida e mutex (Seções 5.9.4 e Capítulo 5 do livro).
+     2. Analisar requisitos do programa:
+        - Entrada: Número de instâncias de recursos via linha de comando (ex.: ./program 10 5 7 para 3 tipos).
+        - Estruturas: Arrays available[3], maximum[5][3], allocation[5][3], need[5][3] (5 clientes, 3 recursos).
+        - Threads: 5 threads clientes em loop infinito, solicitando/liberando recursos aleatoriamente (limitado por need).
+        - Funções: request_resources() e release_resources() com retorno 0/-1, protegidas por mutex.
+        - Inicialização: maximum pode ser aleatória ou fixa; need = maximum - allocation.
+     3. Escolher linguagem e ferramentas:
+        - Linguagem: C com Pthreads (para mutex e threads); alternativa: Java (Thread, synchronized) ou Python (threading, Lock).
+        - Ferramentas: Compilador (gcc), IDE (VS Code), Git para repositório.
+        - Configurar workspace: Criar pastas /src, /docs, /tests.
+     4. Definir milestones e escopo:
+        - Módulos: Inicialização de dados, algoritmo de segurança, funções request/release, threads clientes.
+        - Prazos: Implementar estruturas em 1 dia, algoritmo em 2 dias, threads em 2 dias.
+   - Recursos Necessários: Livro do Silberschatz, internet para pesquisa Pthreads.
+   - Critérios de Conclusão: Documento de planejamento (ex.: em README.md) com pseudocódigo do algoritmo.
+
+#### Fase 2: Design e Implementação (4-6 dias)
+   - Objetivo: Codificar o algoritmo e os threads com sincronização.
+   - Tarefas Detalhadas:
+     1. Implementar estruturas de dados e inicialização:
+        - Definir constantes: NUMBER_OF_CUSTOMERS=5, NUMBER_OF_RESOURCES=3.
+        - Arrays globais: available, maximum, allocation, need.
+        - Função init(): Ler argumentos da linha de comando para available; inicializar maximum aleatoriamente (ex.: valores entre 1-10); calcular need = maximum - allocation (inicialmente 0).
+        - Usar srand() para aleatoriedade.
+     2. Implementar o Algoritmo de Segurança:
+        - Função isSafe(): Verificar se o sistema está seguro (Seção 7.5.3.1).
+        - Lógica: Criar cópias de available, allocation, need; encontrar clientes com need <= work (available); simular alocação; repetir até todos terminarem ou deadlock detectado.
+        - Retornar true/false.
+     3. Implementar request_resources(int customer_num, int request[]):
+        - Verificar se request <= need e request <= available.
+        - Simular alocação temporária: available -= request, allocation += request, need -= request.
+        - Chamar isSafe(); se seguro, confirmar; senão, reverter e retornar -1.
+        - Proteger com mutex (pthread_mutex_lock/unlock).
+     4. Implementar release_resources(int customer_num, int release[]):
+        - Verificar se release <= allocation.
+        - Liberar: available += release, allocation -= release, need += release.
+        - Retornar 0; proteger com mutex.
+     5. Criar threads clientes:
+        - Função cliente(void* arg): Loop infinito; gerar request aleatório (0 a need); chamar request_resources; se sucesso, dormir (sleep), gerar release (parte de allocation), chamar release_resources.
+        - Usar pthread_create para 5 threads; pthread_join no main.
+        - Adicionar prints para log (ex.: "Cliente 1 solicitou [1,2,3]").
+     6. Adicionar sincronização e tratamento de erros:
+        - Mutex global para proteger acesso aos arrays.
+        - Tratar erros: Request inválido, sistema inseguro.
+        - Se for LLM, adicionar aviso no código (ex.: comentário "// Código gerado por LLM") e relatório.
+   - Recursos Necessários: Biblioteca Pthreads (para C), ou threading.Lock (Python).
+   - Critérios de Conclusão: Programa compila, executa sem crashes, threads rodam sem deadlocks óbvios.
+
+#### Fase 3: Testes e Validação (1-2 dias)
+   - Objetivo: Verificar correção, segurança e ausência de deadlocks.
+   - Tarefas Detalhadas:
+     1. Criar casos de teste:
+        - Básico: Recursos suficientes (ex.: available = [10,5,7], maximum baixos).
+        - Deadlock: Solicitações que levam a estado inseguro (ex.: todos pedem máximo simultaneamente).
+        - Liberação: Verificar se available aumenta corretamente.
+        - Concorrência: Rodar com múltiplos threads ativos.
+     2. Executar testes manuais e automatizados:
+        - Compilar e rodar (ex.: ./program 10 5 7); observar logs por 30s-1min.
+        - Verificar métricas: Nenhum deadlock, requests negados corretamente.
+        - Testar em diferentes SO (Windows/Linux) se possível.
+     3. Depurar:
+        - Usar gdb/valgrind para race conditions ou leaks.
+        - Corrigir bugs (ex.: mutex não liberado, cálculo de need errado).
+     4. Validar algoritmo:
+        - Comparar com simulação manual: Ex.: Cliente 1 precisa [2,1,3], available [5,3,4] – deve ser seguro.
+   - Recursos Necessários: Debugger, arquivos de log.
+   - Critérios de Conclusão: Todos os testes passam, nenhum deadlock em execuções longas.
+
+#### Fase 4: Documentação e Entrega (1 dia)
+   - Objetivo: Preparar relatório e repositório GitHub.
+   - Tarefas Detalhadas:
+     1. Escrever relatório (PDF):
+        - Introdução: Explicar Algoritmo do Banqueiro e relevância para deadlocks.
+        - Desenvolvimento: Descrição do código, estruturas, funções, uso de mutex.
+        - Resultados: Exemplos de execução (prints de requests/releases), testes realizados.
+        - Conclusão: Lições (ex.: Importância de sincronização), dificuldades.
+        - Se LLM, incluir aviso (ex.: "Parte do código gerado por IA").
+     2. Preparar repositório GitHub:
+        - Criar repo público; subir código (/src), README.md com instruções de compilação/execução (ex.: "gcc -pthread main.c; ./a.out 10 5 7").
+        - Estrutura: /src (código), /docs (relatório), /tests (casos).
+        - Commits organizados (ex.: "Add safety algorithm").
+     3. Revisar e submeter:
+        - Verificar README e relatório; testar clonagem/compilação.
+        - Submeter relatório no Canvas; link do GitHub no relatório.
+   - Recursos Necessários: Git, editor PDF.
+   - Critérios de Conclusão: Relatório e repo prontos, nota potencial 10/10.
+
+#### Fase 5: Revisão e Aprendizado (Opcional, 0.5 dia)
+   - Objetivo: Melhorar e refletir.
+   - Tarefas Detalhadas:
+     1. Revisar feedback.
+     2. Extensões: Adicionar mais recursos/clientes, GUI para visualização.
+     3. Anotar aprendizados (ex.: Mutex essenciais para threads).
+
+Dicas Gerais:
+- Riscos: Condições de corrida sem mutex; algoritmo de segurança incorreto.
+- Boas Práticas: Commits frequentes, comentários em português/inglês.
+- Avaliação: 5 pontos relatório (claro, completo), 5 pontos implementação (correta, organizada).

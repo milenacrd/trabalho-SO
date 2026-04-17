@@ -1,0 +1,65 @@
+Notas da Mini Task 1.1: Revisar Conceitos Básicos do Algoritmo do Banqueiro
+
+- O Algoritmo do Banqueiro previne deadlocks verificando se o sistema permanece em estado seguro antes de alocar recursos.
+- Vetores como available, maximum, allocation e need ajudam a rastrear recursos e necessidades dos clientes.
+- Um estado inseguro ocorre quando não há sequência viável para terminar todos os processos.
+
+Notas da Mini Task 1.2: Estudar o Algoritmo de Segurança
+
+- O algoritmo de segurança simula alocações usando Work (cópia de Available) e Finish (array booleano).
+- Passos: Inicializar Work/Finish; encontrar cliente com Need <= Work e !Finish; simular término (Work += Allocation, Finish=true); repetir até todos terminarem ou inseguro.
+- Exemplo simulação (2 clientes, 2 recursos): Cliente 1 termina primeiro (Need [1,2] <= Work [3,2]), Work = [5,2]; Cliente 0 não pode (Need [7,4] > [5,2]) → Inseguro.
+- Fluxograma: Início → Init → Loop procurar cliente → Se encontrado: atualizar Work/Finish → Se todos Finish: Seguro; Senão: Inseguro.
+
+Notas da Mini Task 1.3: Revisar Deadlocks e Condições de Corrida
+
+- Deadlock acontece quando processos ficam esperando recursos indefinidamente devido a mutual exclusion, hold and wait, no preemption e circular wait.
+- Condições de corrida ocorrem quando múltiplos threads acessam dados compartilhados sem sincronização adequada.
+- Mutex em Pthreads previne race conditions: pthread_mutex_lock(&mutex) antes da seção crítica e pthread_mutex_unlock(&mutex) depois.
+- Três formas de prevenir deadlocks: usar o Algoritmo do Banqueiro, evitar hold and wait ou permitir preemption.
+
+Notas da Mini Task 1.4: Analisar Requisitos do Programa - Parte 1: Estruturas e Entrada
+
+- Constantes exigidas: NUMBER_OF_CUSTOMERS=5 e NUMBER_OF_RESOURCES=3.
+- Arrays necessários:
+  - available[NUMBER_OF_RESOURCES] para recursos disponíveis passados por linha de comando.
+  - maximum[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES] para demanda máxima de cada cliente.
+  - allocation[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES] para alocações atuais.
+  - need[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES] para necessidade remanescente.
+- Pseudocódigo das estruturas:
+  int available[NUMBER_OF_RESOURCES];
+  int maximum[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES];
+  int allocation[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES];
+  int need[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES];
+- A entrada do programa deve ser lida da linha de comando, por exemplo: ./a.out 10 5 7.
+
+Notas da Mini Task 1.5: Analisar Requisitos do Programa - Parte 2: Threads e Funções
+
+- O programa terá 5 threads clientes, cada uma em loop contínuo solicitando e liberando recursos.
+- Cada thread gera requests aleatórios limitados pelo valor atual em need do cliente.
+- request_resources(customer_num, request[]) deve:
+  - verificar se request <= need e request <= available;
+  - simular a alocação temporária de recursos;
+  - chamar isSafe();
+  - se o sistema permanecer seguro, confirmar a alocação e retornar 0;
+  - se não for seguro, reverter a simulação e retornar -1;
+  - proteger todas as atualizações de arrays com mutex.
+- release_resources(customer_num, release[]) deve:
+  - verificar se release <= allocation;
+  - atualizar available, allocation e need;
+  - retornar 0;
+  - também usar mutex para proteger o acesso compartilhado.
+- Fluxo de um cliente:
+  1. gerar request aleatório;
+  2. chamar request_resources;
+  3. se aprovado, simular execução/trabalho;
+  4. gerar release de recursos;
+  5. chamar release_resources;
+  6. repetir o loop.
+
+Notas da Mini Task 1.6: Escolher Linguagem e Configurar Ambiente
+
+- Linguagem escolhida: Java.
+- Ferramentas necessárias: JDK 11+ instalado e IDE/VS Code com extensão Java.
+- Pastas criadas no workspace: /src, /docs, /tests.
+- Verificação: Compilar e executar um programa Java simples (por exemplo, HelloWorld).

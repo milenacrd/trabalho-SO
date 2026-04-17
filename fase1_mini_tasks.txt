@@ -1,0 +1,46 @@
+### Fase 1: Preparação e Planejamento - Mini Tasks Detalhados
+
+Aqui está a Fase 1 dividida em mini tasks menores e mais acionáveis. Cada uma pode ser resolvida passo a passo, com tempo estimado e verificação. Foco em compreensão teórica e planejamento prático. Total: ~1-2 dias.
+
+#### Mini Task 1.1: Revisar Conceitos Básicos do Algoritmo do Banqueiro (30-60 min)
+   - Ler Seção 7.5.3 do livro: Identificar definições de estado seguro vs. inseguro.
+   - Anotar: O que são vetores available, maximum, allocation, need? Exemplos simples.
+   - Verificação: Escrever 2-3 frases resumindo em papel/notas.
+
+#### Mini Task 1.2: Estudar o Algoritmo de Segurança (45-90 min)
+   - Ler Seção 7.5.3.1: Entender passos para verificar segurança (work, finish arrays).
+   - Simular manualmente: Exemplo com 2 clientes, 2 recursos; calcular se seguro.
+   - Verificação: Desenhar fluxograma simples do algoritmo.
+
+#### Mini Task 1.3: Revisar Deadlocks e Condições de Corrida (30-60 min)
+   - Revisar Capítulo 7: Causas de deadlocks (mutual exclusion, hold and wait, etc.).
+   - Ler Seção 5.9.4: Mutex em Pthreads (lock/unlock).
+   - Verificação: Listar 3 formas de prevenir deadlocks (ex.: algoritmo do banqueiro).
+
+#### Mini Task 1.4: Analisar Requisitos do Programa - Parte 1: Estruturas e Entrada (20-30 min)
+   - Definir constantes: NUMBER_OF_CUSTOMERS=5, NUMBER_OF_RESOURCES=3.
+   - Planejar arrays: available[3] (de args), maximum[5][3], allocation[5][3], need[5][3].
+   - Verificação: Escrever protótipos das estruturas em pseudocódigo.
+
+#### Mini Task 1.5: Analisar Requisitos do Programa - Parte 2: Threads e Funções (20-30 min)
+   - Entender threads: 5 clientes em loop, requests/releases aleatórios (limitado por need).
+   - Funções: request_resources() e release_resources() retornam 0/-1, com mutex.
+   - Verificação: Descrever fluxo de um cliente (request -> check safe -> release).
+
+#### Mini Task 1.6: Escolher Linguagem e Configurar Ambiente (30-45 min)
+   - Decidir linguagem: C (Pthreads) ou Python (threading).
+   - Instalar ferramentas: gcc (C), Python 3; configurar VS Code.
+   - Criar pastas: /src, /docs, /tests no workspace.
+   - Verificação: Compilar um "Hello World" simples.
+
+#### Mini Task 1.7: Definir Milestones e Escopo Detalhado (20-30 min)
+   - Listar módulos: Init, isSafe, request/release, threads.
+   - Estimar prazos: Ex.: Init hoje, algoritmo amanhã.
+   - Verificação: Criar lista de tarefas em TODO.md ou no arquivo plano_tarefas.txt.
+
+#### Mini Task 1.8: Criar Documento de Planejamento (30-45 min)
+   - Escrever README.md: Pseudocódigo do algoritmo, requisitos resumidos.
+   - Incluir referências ao livro.
+   - Verificação: Arquivo legível e completo.
+
+Dicas: Resolva uma mini task por vez, marque como concluída. Se precisar de ajuda (ex.: pseudocódigo), me avise. Podemos atualizar o arquivo plano_tarefas.txt com essas mini tasks se quiser.
