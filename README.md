@@ -3,51 +3,97 @@
 ## Descrição
 Implementação multithreaded em Java do Algoritmo do Banqueiro para prevenção de deadlocks. O programa simula 5 clientes solicitando e liberando recursos de 3 tipos, controlando `available`, `maximum`, `allocation` e `need`.
 
+**Status da Implementação: Fase 2 Concluída** ✅
+- ✅ Algoritmo de segurança `isSafe()` implementado
+- ✅ Método `requestResources()` com validação e rollback
+- ✅ Método `releaseResources()` com validação
+- ✅ Threads clientes com comportamento de loop
+- ✅ Sincronização completa com `ReentrantLock`
+- ✅ Logs detalhados e tratamento de erros
+- ✅ Testes de validação realizados
+
 ## Estrutura do Projeto
-- `src/`: código fonte Java
-- `tests/`: scripts de teste
-- `.gitignore`: ignora arquivos de build e IDE
+- `src/BankersAlgorithm.java`: implementação principal
+- `docs/`: documentação e planejamento
+- `tests/`: scripts de teste (futuro)
 
 ## Compilação
-No terminal, dentro da pasta do projeto:
-
 ```bash
-javac src\BankersAlgorithm.java
+javac src/BankersAlgorithm.java
 ```
 
-## Execução normal
-Para executar com os recursos iniciais passados por linha de comando:
+## Modos de Execução
 
+### 1. Verificar estado inicial
 ```bash
 java -cp src BankersAlgorithm 10 5 7
 ```
+Exibe configuração inicial e se o estado é seguro.
 
-Substitua `10 5 7` pelos valores de `available` que deseja testar.
-
-## Modo de teste `requestResources`
-O programa também tem um modo especial para testar `requestResources` diretamente:
-
+### 2. Modo simulação (threads)
 ```bash
-java -cp src BankersAlgorithm 12 8 7 request 0 1 1 1
+java -cp src BankersAlgorithm 20 15 10 simulate
+```
+Executa 5 threads clientes fazendo requests/releases aleatórios por 10 iterações cada.
+
+### 3. Testar request específico
+```bash
+java -cp src BankersAlgorithm 10 5 7 request 0 1 0 0
+```
+Testa uma solicitação específica: cliente 0 solicita [1,0,0].
+
+### 4. Testar release específico
+```bash
+java -cp src BankersAlgorithm 10 5 7 release 0 1 0 0
+```
+Testa uma liberação específica: cliente 0 libera [1,0,0].
+
+## Funcionalidades Implementadas
+
+### Algoritmo de Segurança
+- Implementa o algoritmo clássico do banqueiro
+- Calcula sequência segura quando possível
+- Protegido por `ReentrantLock` para acesso thread-safe
+
+### Gerenciamento de Recursos
+- **Request**: Valida necessidade, disponibilidade e segurança
+- **Release**: Valida alocação atual e atualiza estado
+- Rollback automático em caso de request inseguro
+
+### Sincronização
+- `ReentrantLock` protege todas as operações compartilhadas
+- Previne condições de corrida entre threads
+- Garante consistência dos arrays `available`, `allocation`, `need`
+
+### Logs e Tratamento de Erros
+- Mensagens detalhadas para cada operação
+- Indicação clara de motivo de negação (recursos insuficientes vs estado inseguro)
+- Tratamento de argumentos inválidos
+- Validação de entrada com mensagens de erro
+
+## Exemplos de Saída
+
+### Simulação com recursos suficientes:
+```
+Cliente 0 - Request [1, 0, 0] APROVADO. Estado seguro mantido.
+Sequência segura: 0 -> 1 -> 2 -> 3 -> 4
+Cliente 2 - Release [3, 2, 1] efetuado. Available agora: [9, 9, 4]
 ```
 
-Nesse exemplo:
-- `12 8 7` são os recursos `available`
-- `request` ativa o modo de teste
-- `0` é o índice do cliente
-- `1 1 1` é o vetor de recursos solicitados
-
-O programa exibirá se a solicitação foi aprovada ou negada e se o sistema permaneceu em estado seguro.
-
-## Script de teste automático
-Há um script de teste dentro de `tests/run_tests.bat` para rodar várias execuções automaticamente.
-
-### Uso do script de teste
-Abra o terminal na pasta do projeto e execute:
-
-```bash
-tests\run_tests.bat
+### Request negado por estado inseguro:
 ```
+Cliente 0 - Request [1, 0, 0] negado: causaria estado inseguro.
+```
+
+### Request negado por recursos insuficientes:
+```
+Cliente 3 - Request [7, 8, 2] negado: recursos insuficientes. Available: [5, 3, 2]
+```
+
+## Tratamento de Erros
+- Cliente inválido: "ERRO: Cliente 10 inválido. Deve estar entre 0 e 4"
+- Recursos negativos: "ERRO: Recursos disponíveis não podem ser negativos"
+- Argumentos não numéricos: "ERRO: Argumentos numéricos inválidos"
 
 O script fará:
 - compilação do código

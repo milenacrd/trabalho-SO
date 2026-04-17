@@ -10,13 +10,21 @@
 - [x] Definir milestones e escopo (esta lista)
 - [x] Criar documento de planejamento (README.md)
 
-## Fase 2: Design e Implementação (Em Andamento)
-- [ ] Implementar estruturas de dados e inicialização (hoje)
-- [ ] Implementar algoritmo de segurança (hoje/amanhã)
-- [ ] Implementar request_resources() (amanhã)
-- [ ] Implementar release_resources() (amanhã)
-- [ ] Criar threads clientes (amanhã)
-- [ ] Adicionar sincronização e tratamento de erros (amanhã)
+## Fase 2: Design e Implementação (Concluída ✅)
+- [x] Mini Task 2.1: Inicialização de dados e leitura de entrada
+- [x] Mini Task 2.2: Algoritmo de segurança isSafe()
+- [x] Mini Task 2.3: request_resources() com validação e rollback
+- [x] Mini Task 2.4: release_resources() com validação
+- [x] Mini Task 2.5: Threads clientes com loop de request/release
+- [x] Mini Task 2.6: Sincronização com ReentrantLock
+- [x] Mini Task 2.7: Logs detalhados e tratamento de erros
+- [x] Mini Task 2.8: Testes da implementação básica
+
+## Fase 3: Testes e Validação (Próxima)
+- [ ] Criar suite de testes automatizados
+- [ ] Testar cenários extremos (deadlock, starvation)
+- [ ] Validar performance com muitos threads
+- [ ] Documentar casos de teste
 
 ## Fase 3: Testes e Validação
 - [ ] Criar casos de teste
