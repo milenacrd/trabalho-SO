@@ -17,6 +17,13 @@ public class BankersAlgorithm {
             return;
         }
 
+        if (args.length == NUMBER_OF_RESOURCES + 1 && args[NUMBER_OF_RESOURCES].equalsIgnoreCase("simulate")) {
+            initData(Arrays.copyOf(args, NUMBER_OF_RESOURCES));
+            printInitialState();
+            runSimulation();
+            return;
+        }
+
         if (args.length == NUMBER_OF_RESOURCES) {
             initData(Arrays.copyOf(args, NUMBER_OF_RESOURCES));
             printInitialState();
@@ -47,7 +54,6 @@ public class BankersAlgorithm {
             return;
         }
 
-        
         if (args.length == NUMBER_OF_RESOURCES + 2 + NUMBER_OF_RESOURCES
                 && args[NUMBER_OF_RESOURCES].equalsIgnoreCase("release")) {
             String[] availableArgs = Arrays.copyOf(args, NUMBER_OF_RESOURCES);
@@ -75,6 +81,7 @@ public class BankersAlgorithm {
     static void printUsage() {
         System.out.println("Uso:");
         System.out.println("  java -cp src BankersAlgorithm <r1> <r2> <r3>");
+        System.out.println("  java -cp src BankersAlgorithm <r1> <r2> <r3> simulate");
         System.out.println("  java -cp src BankersAlgorithm <r1> <r2> <r3> request <customer> <q1> <q2> <q3>");
         System.out.println("  java -cp src BankersAlgorithm <r1> <r2> <r3> release <customer> <q1> <q2> <q3>");
     }
@@ -128,7 +135,7 @@ public class BankersAlgorithm {
         }
     }
 
-    static boolean isSafe() {
+    static synchronized boolean isSafe() {
         int[] work = Arrays.copyOf(available, available.length);
         boolean[] finish = new boolean[NUMBER_OF_CUSTOMERS];
         int[] safeSequence = new int[NUMBER_OF_CUSTOMERS];
@@ -166,7 +173,7 @@ public class BankersAlgorithm {
         return safe;
     }
 
-    static int requestResources(int customerNum, int[] request) {
+    static synchronized int requestResources(int customerNum, int[] request) {
         if (customerNum < 0 || customerNum >= NUMBER_OF_CUSTOMERS) {
             return -1;
         }
@@ -198,7 +205,7 @@ public class BankersAlgorithm {
         return -1;
     }
 
-    static int releaseResources(int customerNum, int[] release) {
+    static synchronized int releaseResources(int customerNum, int[] release) {
         if (customerNum < 0 || customerNum >= NUMBER_OF_CUSTOMERS) {
             return -1;
         }
@@ -216,6 +223,90 @@ public class BankersAlgorithm {
         }
 
         return 0;
+    }
+
+    static void runSimulation() {
+        Thread[] threads = new Thread[NUMBER_OF_CUSTOMERS];
+
+        for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
+            threads[i] = new Thread(new CustomerThread(i));
+            threads[i].start();
+        }
+
+        for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
+            try {
+                threads[i].join();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        System.out.println("\nSimulação finalizada.");
+        printInitialState();
+        System.out.println("Estado seguro? " + isSafe());
+    }
+
+    static class CustomerThread implements Runnable {
+        private final int customerNum;
+        private final Random random = new Random();
+
+        CustomerThread(int customerNum) {
+            this.customerNum = customerNum;
+        }
+
+        @Override
+        public void run() {
+            for (int iteration = 0; iteration < 10; iteration++) {
+                int[] request = generateRequest();
+                if (request != null) {
+                    int result = requestResources(customerNum, request);
+                    if (result == 0) {
+                        System.out.println("[Cliente " + customerNum + "] request aprovado: " + Arrays.toString(request));
+                        sleepRandom(200, 500);
+                        int[] release = generateRelease();
+                        if (release != null) {
+                            int releaseResult = releaseResources(customerNum, release);
+                            if (releaseResult == 0) {
+                                System.out.println("[Cliente " + customerNum + "] release efetuado: " + Arrays.toString(release));
+                            }
+                        }
+                    } else {
+                        System.out.println("[Cliente " + customerNum + "] request negado: " + Arrays.toString(request));
+                    }
+                }
+                sleepRandom(100, 300);
+            }
+        }
+
+        private int[] generateRequest() {
+            int[] request = new int[NUMBER_OF_RESOURCES];
+            int total = 0;
+            for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+                int max = need[customerNum][i];
+                request[i] = max > 0 ? random.nextInt(max + 1) : 0;
+                total += request[i];
+            }
+            return total > 0 ? request : null;
+        }
+
+        private int[] generateRelease() {
+            int[] release = new int[NUMBER_OF_RESOURCES];
+            int total = 0;
+            for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+                int max = allocation[customerNum][i];
+                release[i] = max > 0 ? random.nextInt(max + 1) : 0;
+                total += release[i];
+            }
+            return total > 0 ? release : null;
+        }
+
+        private void sleepRandom(int minMillis, int maxMillis) {
+            try {
+                Thread.sleep(minMillis + random.nextInt(maxMillis - minMillis + 1));
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     static boolean canSatisfy(int[] request, int[] available) {
