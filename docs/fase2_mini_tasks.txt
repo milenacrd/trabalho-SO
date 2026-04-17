@@ -1,0 +1,65 @@
+### Fase 2: Design e Implementação - Mini Tasks Detalhadas
+
+Esta fase cobre a implementação do código Java para o Algoritmo do Banqueiro, com foco na lógica de segurança, no request/release e na sincronização de threads.
+
+#### Mini Task 2.1: Implementar inicialização de dados e leitura de entrada (30-60 min)
+- Ler os valores de `available` a partir da linha de comando (3 valores para 3 recursos).
+- Definir `maximum[5][3]`, `allocation[5][3]` e `need[5][3]` como arrays estáticos ou membros da classe.
+- Inicializar `maximum` com valores fixos ou aleatórios previsíveis para testes.
+- Inicializar `allocation` com zeros.
+- Calcular `need = maximum - allocation`.
+- Verificação: rodar apenas a inicialização e imprimir os arrays.
+
+#### Mini Task 2.2: Implementar o algoritmo de segurança `isSafe()` (45-90 min)
+- Escrever o método `isSafe()` usando os vetores `work` e `finish`.
+- Implementar `canSatisfy(int[] request, int[] available)` para comparar vetores.
+- Fazer a simulação de término: procurar cliente com `need <= work`; somar `allocation` ao `work`; marcar `finish[i] = true`.
+- Retornar `true` se todos `finish` forem `true`, caso contrário `false`.
+- Verificação: testar `isSafe()` com `allocation` zero e com algumas alocações simuladas.
+
+#### Mini Task 2.3: Implementar `request_resources(int customer_num, int[] request)` (45-90 min)
+- Criar método que valida se `request` está dentro de `need[customer_num]` e `available`.
+- Simular a alocação temporária atualizando `available`, `allocation` e `need`.
+- Chamar `isSafe()` após a simulação.
+- Se seguro, manter a alocação e retornar `0`; se inseguro, reverter mudanças e retornar `-1`.
+- Verificação: testar com requisições válidas e inválidas, garantindo que `available` retorna ao valor anterior quando a solicitação falha.
+
+#### Mini Task 2.4: Implementar `release_resources(int customer_num, int[] release)` (30-60 min)
+- Criar método que valida se `release` é menor ou igual a `allocation[customer_num]`.
+- Atualizar `available += release`, `allocation -= release`, `need += release`.
+- Retornar `0` se bem-sucedido, `-1` caso o release seja inválido.
+- Verificação: testar liberações válidas e inválidas; checar se `allocation` e `need` atualizam corretamente.
+
+#### Mini Task 2.5: Criar threads clientes e definir comportamento de loop (60-120 min)
+- Criar classe `CustomerThread` que implementa `Runnable`.
+- No `run()`, executar um loop contínuo:
+  1. Gerar `request[]` aleatório limitado por `need[customer_num]`.
+  2. Chamar `request_resources(customer_num, request)`.
+  3. Se aprovado, aguardar alguns milissegundos (`Thread.sleep(...)`).
+  4. Gerar `release[]` aleatório limitado por `allocation[customer_num]`.
+  5. Chamar `release_resources(customer_num, release)`.
+- No `main()`, criar e iniciar 5 threads de clientes.
+- Verificação: observar logs de solicitações e liberações em execução.
+
+#### Mini Task 2.6: Adicionar sincronização de acesso compartilhado (45-90 min)
+- Definir um lock compartilhado (`ReentrantLock` ou `synchronized`) para proteger `available`, `allocation` e `need`.
+- Colocar `request_resources()` e `release_resources()` dentro de seções críticas.
+- Garantir que `isSafe()` também seja chamado dentro da região protegida quando usado para validar uma simulação.
+- Verificação: rodar o programa com várias threads e confirmar que não há exceções de concorrência.
+
+#### Mini Task 2.7: Adicionar logs e tratamento de erros (30-60 min)
+- Imprimir eventos importantes: solicitação de recursos, aceitação, negação, liberação.
+- Adicionar mensagens de erro para `request` ou `release` inválidos.
+- Registrar o estado dos arrays após cada operação relevante.
+- Verificação: os logs mostram claramente o fluxo de cada cliente.
+
+#### Mini Task 2.8: Testar a implementação básica em Java (60-120 min)
+- Executar o programa com diferentes configurações de `available`.
+- Testar cenários com recursos suficientes e escassos.
+- Verificar se o sistema rejeita solicitações inseguras e liberta recursos corretamente.
+- Ajustar o código conforme necessário para corrigir problemas.
+
+#### Resumo
+- Tempo estimado total: 5-8 horas.
+- Objetivo principal: construir a implementação Java completa do Algoritmo do Banqueiro com threads e sincronização.
+- Resultado esperado: programa rodando e evitando estados inseguros usando `request_resources()` e `isSafe()`.

@@ -14,6 +14,14 @@ public class BankersAlgorithm {
     static int[][] need = new int[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES];
 
     public static void main(String[] args) {
+        initData(args);
+        printInitialState();
+
+        boolean safe = isSafe();
+        System.out.println("Estado seguro? " + safe);
+    }
+
+    static void initData(String[] args) {
         if (args.length != NUMBER_OF_RESOURCES) {
             System.out.println("Uso: java BankersAlgorithm <rec1> <rec2> <rec3>");
             System.exit(1);
@@ -26,7 +34,9 @@ public class BankersAlgorithm {
         initMaximum();
         initAllocation();
         calculateNeed();
+    }
 
+    static void printInitialState() {
         System.out.println("=== Configuração Inicial ===");
         System.out.println("Available: " + Arrays.toString(available));
         System.out.println("Maximum:");
@@ -35,9 +45,6 @@ public class BankersAlgorithm {
         printMatrix(allocation);
         System.out.println("Need:");
         printMatrix(need);
-
-        boolean safe = isSafe();
-        System.out.println("Estado seguro? " + safe);
     }
 
     static void initMaximum() {
@@ -50,7 +57,6 @@ public class BankersAlgorithm {
     }
 
     static void initAllocation() {
-        // Inicialização básica: nenhuma alocação inicial.
         for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
             Arrays.fill(allocation[i], 0);
         }
