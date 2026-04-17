@@ -1,0 +1,17 @@
+# Java class files
+*.class
+
+# IntelliJ IDEA files
+.idea/
+*.iml
+
+# VS Code files
+.vscode/
+
+# Build directories
+bin/
+target/
+
+# OS files
+.DS_Store
+Thumbs.db
