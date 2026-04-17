@@ -47,6 +47,28 @@ public class BankersAlgorithm {
             return;
         }
 
+        
+        if (args.length == NUMBER_OF_RESOURCES + 2 + NUMBER_OF_RESOURCES
+                && args[NUMBER_OF_RESOURCES].equalsIgnoreCase("release")) {
+            String[] availableArgs = Arrays.copyOf(args, NUMBER_OF_RESOURCES);
+            initData(availableArgs);
+            printInitialState();
+
+            int customerNum = Integer.parseInt(args[NUMBER_OF_RESOURCES + 1]);
+            int[] release = new int[NUMBER_OF_RESOURCES];
+            for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+                release[i] = Integer.parseInt(args[NUMBER_OF_RESOURCES + 2 + i]);
+            }
+
+            System.out.println("\nTeste de releaseResources para cliente " + customerNum + ", liberando " + Arrays.toString(release));
+            int result = releaseResources(customerNum, release);
+            System.out.println("Resultado: " + (result == 0 ? "Liberado" : "Inválido"));
+            printInitialState();
+            boolean safe = isSafe();
+            System.out.println("Estado seguro após release? " + safe);
+            return;
+        }
+
         printUsage();
     }
 
@@ -54,6 +76,7 @@ public class BankersAlgorithm {
         System.out.println("Uso:");
         System.out.println("  java -cp src BankersAlgorithm <r1> <r2> <r3>");
         System.out.println("  java -cp src BankersAlgorithm <r1> <r2> <r3> request <customer> <q1> <q2> <q3>");
+        System.out.println("  java -cp src BankersAlgorithm <r1> <r2> <r3> release <customer> <q1> <q2> <q3>");
     }
 
     static void initData(String[] args) {
@@ -173,6 +196,26 @@ public class BankersAlgorithm {
         }
 
         return -1;
+    }
+
+    static int releaseResources(int customerNum, int[] release) {
+        if (customerNum < 0 || customerNum >= NUMBER_OF_CUSTOMERS) {
+            return -1;
+        }
+
+        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+            if (release[j] < 0 || release[j] > allocation[customerNum][j]) {
+                return -1;
+            }
+        }
+
+        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+            available[j] += release[j];
+            allocation[customerNum][j] -= release[j];
+            need[customerNum][j] += release[j];
+        }
+
+        return 0;
     }
 
     static boolean canSatisfy(int[] request, int[] available) {
