@@ -26,12 +26,6 @@
 - [ ] Validar performance com muitos threads
 - [ ] Documentar casos de teste
 
-## Fase 3: Testes e Validação
-- [ ] Criar casos de teste
-- [ ] Executar testes manuais e automatizados
-- [ ] Depurar bugs
-- [ ] Validar algoritmo
-
 ## Fase 4: Documentação e Entrega
 - [ ] Escrever relatório (PDF)
 - [ ] Preparar repositório GitHub
