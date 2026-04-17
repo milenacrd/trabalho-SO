@@ -1,10 +1,13 @@
 
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class BankersAlgorithm {
     static final int NUMBER_OF_CUSTOMERS = 5;
     static final int NUMBER_OF_RESOURCES = 3;
+
+    static final ReentrantLock lock = new ReentrantLock();
 
     static int[] available = new int[NUMBER_OF_RESOURCES];
     static int[][] maximum = new int[NUMBER_OF_CUSTOMERS][NUMBER_OF_RESOURCES];
@@ -39,18 +42,23 @@ public class BankersAlgorithm {
             initData(availableArgs);
             printInitialState();
 
-            int customerNum = Integer.parseInt(args[NUMBER_OF_RESOURCES + 1]);
-            int[] request = new int[NUMBER_OF_RESOURCES];
-            for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
-                request[i] = Integer.parseInt(args[NUMBER_OF_RESOURCES + 2 + i]);
-            }
+            try {
+                int customerNum = Integer.parseInt(args[NUMBER_OF_RESOURCES + 1]);
+                int[] request = new int[NUMBER_OF_RESOURCES];
+                for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+                    request[i] = Integer.parseInt(args[NUMBER_OF_RESOURCES + 2 + i]);
+                }
 
-            System.out.println("\nTeste de requestResources para cliente " + customerNum + ", pedido " + Arrays.toString(request));
-            int result = requestResources(customerNum, request);
-            System.out.println("Resultado: " + (result == 0 ? "Aprovado" : "Negado"));
-            printInitialState();
-            boolean safe = isSafe();
-            System.out.println("Estado seguro após request? " + safe);
+                System.out.println("\nTeste de requestResources para cliente " + customerNum + ", pedido " + Arrays.toString(request));
+                int result = requestResources(customerNum, request);
+                System.out.println("Resultado: " + (result == 0 ? "Aprovado" : "Negado"));
+                printInitialState();
+                boolean safe = isSafe();
+                System.out.println("Estado seguro após request? " + safe);
+            } catch (NumberFormatException e) {
+                System.err.println("ERRO: Argumentos numéricos inválidos para request. Use apenas números inteiros.");
+                printUsage();
+            }
             return;
         }
 
@@ -60,18 +68,23 @@ public class BankersAlgorithm {
             initData(availableArgs);
             printInitialState();
 
-            int customerNum = Integer.parseInt(args[NUMBER_OF_RESOURCES + 1]);
-            int[] release = new int[NUMBER_OF_RESOURCES];
-            for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
-                release[i] = Integer.parseInt(args[NUMBER_OF_RESOURCES + 2 + i]);
-            }
+            try {
+                int customerNum = Integer.parseInt(args[NUMBER_OF_RESOURCES + 1]);
+                int[] release = new int[NUMBER_OF_RESOURCES];
+                for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+                    release[i] = Integer.parseInt(args[NUMBER_OF_RESOURCES + 2 + i]);
+                }
 
-            System.out.println("\nTeste de releaseResources para cliente " + customerNum + ", liberando " + Arrays.toString(release));
-            int result = releaseResources(customerNum, release);
-            System.out.println("Resultado: " + (result == 0 ? "Liberado" : "Inválido"));
-            printInitialState();
-            boolean safe = isSafe();
-            System.out.println("Estado seguro após release? " + safe);
+                System.out.println("\nTeste de releaseResources para cliente " + customerNum + ", liberando " + Arrays.toString(release));
+                int result = releaseResources(customerNum, release);
+                System.out.println("Resultado: " + (result == 0 ? "Liberado" : "Inválido"));
+                printInitialState();
+                boolean safe = isSafe();
+                System.out.println("Estado seguro após release? " + safe);
+            } catch (NumberFormatException e) {
+                System.err.println("ERRO: Argumentos numéricos inválidos para release. Use apenas números inteiros.");
+                printUsage();
+            }
             return;
         }
 
@@ -92,8 +105,18 @@ public class BankersAlgorithm {
             System.exit(1);
         }
 
-        for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
-            available[i] = Integer.parseInt(args[i]);
+        try {
+            for (int i = 0; i < NUMBER_OF_RESOURCES; i++) {
+                available[i] = Integer.parseInt(args[i]);
+                if (available[i] < 0) {
+                    System.err.println("ERRO: Recursos disponíveis não podem ser negativos. Valor fornecido: " + available[i]);
+                    System.exit(1);
+                }
+            }
+        } catch (NumberFormatException e) {
+            System.err.println("ERRO: Recursos disponíveis devem ser números inteiros não-negativos.");
+            printUsage();
+            System.exit(1);
         }
 
         initMaximum();
@@ -135,94 +158,129 @@ public class BankersAlgorithm {
         }
     }
 
-    static synchronized boolean isSafe() {
-        int[] work = Arrays.copyOf(available, available.length);
-        boolean[] finish = new boolean[NUMBER_OF_CUSTOMERS];
-        int[] safeSequence = new int[NUMBER_OF_CUSTOMERS];
-        int count = 0;
+    static boolean isSafe() {
+        lock.lock();
+        try {
+            int[] work = Arrays.copyOf(available, available.length);
+            boolean[] finish = new boolean[NUMBER_OF_CUSTOMERS];
+            int[] safeSequence = new int[NUMBER_OF_CUSTOMERS];
+            int count = 0;
 
-        while (count < NUMBER_OF_CUSTOMERS) {
-            boolean found = false;
-            for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
-                if (!finish[i] && canSatisfy(need[i], work)) {
-                    for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
-                        work[j] += allocation[i][j];
+            while (count < NUMBER_OF_CUSTOMERS) {
+                boolean found = false;
+                for (int i = 0; i < NUMBER_OF_CUSTOMERS; i++) {
+                    if (!finish[i] && canSatisfy(need[i], work)) {
+                        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+                            work[j] += allocation[i][j];
+                        }
+                        safeSequence[count++] = i;
+                        finish[i] = true;
+                        found = true;
                     }
-                    safeSequence[count++] = i;
-                    finish[i] = true;
-                    found = true;
+                }
+
+                if (!found) {
+                    break;
                 }
             }
 
-            if (!found) {
-                break;
-            }
-        }
-
-        boolean safe = count == NUMBER_OF_CUSTOMERS;
-        if (safe) {
-            System.out.print("Sequência segura: ");
-            for (int i = 0; i < count; i++) {
-                System.out.print(safeSequence[i]);
-                if (i < count - 1) {
-                    System.out.print(" -> ");
+            boolean safe = count == NUMBER_OF_CUSTOMERS;
+            if (safe) {
+                System.out.print("Sequência segura: ");
+                for (int i = 0; i < count; i++) {
+                    System.out.print(safeSequence[i]);
+                    if (i < count - 1) {
+                        System.out.print(" -> ");
+                    }
                 }
+                System.out.println();
             }
-            System.out.println();
+            return safe;
+        } finally {
+            lock.unlock();
         }
-        return safe;
     }
 
-    static synchronized int requestResources(int customerNum, int[] request) {
-        if (customerNum < 0 || customerNum >= NUMBER_OF_CUSTOMERS) {
-            return -1;
-        }
-
-        if (!canSatisfy(request, need[customerNum])) {
-            return -1;
-        }
-
-        if (!canSatisfy(request, available)) {
-            return -1;
-        }
-
-        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
-            available[j] -= request[j];
-            allocation[customerNum][j] += request[j];
-            need[customerNum][j] -= request[j];
-        }
-
-        if (isSafe()) {
-            return 0;
-        }
-
-        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
-            available[j] += request[j];
-            allocation[customerNum][j] -= request[j];
-            need[customerNum][j] += request[j];
-        }
-
-        return -1;
-    }
-
-    static synchronized int releaseResources(int customerNum, int[] release) {
-        if (customerNum < 0 || customerNum >= NUMBER_OF_CUSTOMERS) {
-            return -1;
-        }
-
-        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
-            if (release[j] < 0 || release[j] > allocation[customerNum][j]) {
+    static int requestResources(int customerNum, int[] request) {
+        lock.lock();
+        try {
+            if (customerNum < 0 || customerNum >= NUMBER_OF_CUSTOMERS) {
+                System.err.println("ERRO: Cliente " + customerNum + " inválido. Deve estar entre 0 e " + (NUMBER_OF_CUSTOMERS - 1));
                 return -1;
             }
-        }
 
-        for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
-            available[j] += release[j];
-            allocation[customerNum][j] -= release[j];
-            need[customerNum][j] += release[j];
-        }
+            if (request == null || request.length != NUMBER_OF_RESOURCES) {
+                System.err.println("ERRO: Request inválido para cliente " + customerNum + ". Deve ter " + NUMBER_OF_RESOURCES + " recursos");
+                return -1;
+            }
 
-        return 0;
+            if (!canSatisfy(request, need[customerNum])) {
+                System.out.println("Cliente " + customerNum + " - Request " + Arrays.toString(request) + " negado: excede necessidade " + Arrays.toString(need[customerNum]));
+                return -1;
+            }
+
+            if (!canSatisfy(request, available)) {
+                System.out.println("Cliente " + customerNum + " - Request " + Arrays.toString(request) + " negado: recursos insuficientes. Available: " + Arrays.toString(available));
+                return -1;
+            }
+
+            // Simular alocação
+            for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+                available[j] -= request[j];
+                allocation[customerNum][j] += request[j];
+                need[customerNum][j] -= request[j];
+            }
+
+            if (isSafe()) {
+                System.out.println("Cliente " + customerNum + " - Request " + Arrays.toString(request) + " APROVADO. Estado seguro mantido.");
+                return 0;
+            }
+
+            // Reverter alocação se não for seguro
+            for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+                available[j] += request[j];
+                allocation[customerNum][j] -= request[j];
+                need[customerNum][j] += request[j];
+            }
+
+            System.out.println("Cliente " + customerNum + " - Request " + Arrays.toString(request) + " negado: causaria estado inseguro.");
+            return -1;
+        } finally {
+            lock.unlock();
+        }
+    }
+
+    static int releaseResources(int customerNum, int[] release) {
+        lock.lock();
+        try {
+            if (customerNum < 0 || customerNum >= NUMBER_OF_CUSTOMERS) {
+                System.err.println("ERRO: Cliente " + customerNum + " inválido. Deve estar entre 0 e " + (NUMBER_OF_CUSTOMERS - 1));
+                return -1;
+            }
+
+            if (release == null || release.length != NUMBER_OF_RESOURCES) {
+                System.err.println("ERRO: Release inválido para cliente " + customerNum + ". Deve ter " + NUMBER_OF_RESOURCES + " recursos");
+                return -1;
+            }
+
+            for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+                if (release[j] < 0 || release[j] > allocation[customerNum][j]) {
+                    System.err.println("ERRO: Cliente " + customerNum + " - Release " + Arrays.toString(release) + " inválido: release[" + j + "]=" + release[j] + " > allocation[" + j + "]=" + allocation[customerNum][j]);
+                    return -1;
+                }
+            }
+
+            for (int j = 0; j < NUMBER_OF_RESOURCES; j++) {
+                available[j] += release[j];
+                allocation[customerNum][j] -= release[j];
+                need[customerNum][j] += release[j];
+            }
+
+            System.out.println("Cliente " + customerNum + " - Release " + Arrays.toString(release) + " efetuado. Available agora: " + Arrays.toString(available));
+            return 0;
+        } finally {
+            lock.unlock();
+        }
     }
 
     static void runSimulation() {
