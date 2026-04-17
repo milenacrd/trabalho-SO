@@ -20,11 +20,15 @@
 - [x] Mini Task 2.7: Logs detalhados e tratamento de erros
 - [x] Mini Task 2.8: Testes da implementação básica
 
-## Fase 3: Testes e Validação (Próxima)
-- [ ] Criar suite de testes automatizados
-- [ ] Testar cenários extremos (deadlock, starvation)
-- [ ] Validar performance com muitos threads
-- [ ] Documentar casos de teste
+## Fase 3: Testes e Validação (Em Andamento)
+- [x] Mini Task 3.1: Criar estrutura de testes automatizados (Diretório criado, classe básica iniciada)
+- [ ] Mini Task 3.2: Testar algoritmo de segurança com casos conhecidos
+- [ ] Mini Task 3.3: Testar request/release com cenários controlados
+- [ ] Mini Task 3.4: Testar cenários extremos de deadlock
+- [ ] Mini Task 3.5: Validar comportamento multithread
+- [ ] Mini Task 3.6: Criar testes de carga e performance
+- [ ] Mini Task 3.7: Documentar casos de teste e resultados
+- [ ] Mini Task 3.8: Executar bateria completa de testes
 
 ## Fase 4: Documentação e Entrega
 - [ ] Escrever relatório (PDF)

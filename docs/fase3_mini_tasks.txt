@@ -1,0 +1,66 @@
+### Fase 3: Testes e Validação - Mini Tasks Detalhadas
+
+Esta fase foca na validação completa da implementação do Algoritmo do Banqueiro, criando testes automatizados, testando cenários extremos e validando performance.
+
+#### Mini Task 3.1: Criar estrutura de testes automatizados (45-90 min)
+- Criar diretório `tests/` com estrutura organizada
+- Implementar classe `BankersAlgorithmTest` com métodos de teste
+- Configurar dados de teste fixos para reprodutibilidade
+- Criar método `assertState()` para verificar estado dos arrays
+- Verificação: executar testes básicos de inicialização e estado seguro
+
+#### Mini Task 3.2: Testar algoritmo de segurança com casos conhecidos (45-90 min)
+- Testar `isSafe()` com estados conhecidos (seguros e inseguros)
+- Implementar casos de teste com alocações iniciais não-zero
+- Verificar cálculo correto de sequências seguras
+- Testar edge cases: sistema já em deadlock, recursos exatos
+- Verificação: todos os casos de teste passam/Falam conforme esperado
+
+#### Mini Task 3.3: Testar request/release com cenários controlados (60-120 min)
+- Testar `requestResources()` com requests que devem ser aprovados
+- Testar `requestResources()` com requests que devem ser negados
+- Testar `releaseResources()` com liberações válidas e inválidas
+- Verificar rollback automático quando request causa estado inseguro
+- Verificação: estado dos arrays permanece consistente após cada operação
+
+#### Mini Task 3.4: Testar cenários extremos de deadlock (60-120 min)
+- Criar teste onde sistema entra em deadlock inevitável
+- Testar starvation: um cliente nunca consegue recursos
+- Testar livelock: threads alternam sem progresso
+- Verificar que algoritmo previne deadlocks corretamente
+- Verificação: sistema detecta e previne estados perigosos
+
+#### Mini Task 3.5: Validar comportamento multithread (90-150 min)
+- Testar simulação com diferentes números de threads
+- Verificar ausência de race conditions e deadlocks
+- Testar sincronização com `ReentrantLock`
+- Medir performance: tempo de execução vs número de threads
+- Verificação: simulações rodam sem erros de concorrência
+
+#### Mini Task 3.6: Criar testes de carga e performance (60-120 min)
+- Implementar teste com muitos clientes (10-20 threads)
+- Testar com alta frequência de requests/releases
+- Medir throughput: operações por segundo
+- Verificar escalabilidade do algoritmo
+- Verificação: sistema mantém performance aceitável sob carga
+
+#### Mini Task 3.7: Documentar casos de teste e resultados (45-90 min)
+- Criar arquivo `tests/README.md` com descrição dos testes
+- Documentar cenários de teste e resultados esperados
+- Criar tabela de cobertura de testes
+- Registrar bugs encontrados e correções aplicadas
+- Verificação: documentação clara e completa dos testes
+
+#### Mini Task 3.8: Executar bateria completa de testes (30-60 min)
+- Rodar todos os testes automatizados
+- Verificar cobertura de cenários críticos
+- Executar testes manuais para casos não automatizados
+- Gerar relatório de testes executados
+- Verificação: todos os testes passam, sistema validado
+
+#### Resumo
+- Tempo estimado total: 6-10 horas
+- Objetivo principal: validar completamente a implementação e identificar possíveis bugs
+- Resultado esperado: suite de testes abrangente, sistema testado em cenários extremos, confiança na implementação
+- Métricas de sucesso: 100% dos testes passando, nenhum deadlock/race condition detectado</content>
+<parameter name="filePath">c:\Users\Mi-Mi\Downloads\trabalho-SO\docs\fase3_mini_tasks.txt
